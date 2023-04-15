@@ -15,25 +15,74 @@ public class mazeControl : MonoBehaviour
     public float tileInnerSize;
     public GameObject tileObject;
 
-    // materials 
+    // types and materials
+    string free = "free", start = "start", dest = "destination", obst = "obstacle";
     public Material materialTileEdge;
     public Material materialSelect;
     public Material materialFree;
     public Material materialStart;
     public Material materialDest;
     public Material materialObst;
+    Dictionary<string, Material> typeToMaterial = new Dictionary<string, Material>();
 
 
     public Camera gameCamera;
-    string free = "free", start = "start", dest = "destination", obst = "obstacle";
 
     Vector2Int indexSelectedTile;
 
-    // link string to material with dictionary
+    
 
 
     void Start()
     {   
+        initializeMaterialDict();
+        initializeMaze();
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+        Vector3 mousePosition = gameCamera.ScreenToWorldPoint(Input.mousePosition);
+        print(mousePosition);
+        Vector2Int indices = posToIndex(mousePosition);
+
+        /* control flow according to indices 
+        - insize of maze
+            - on click
+        - outsize of maze
+        - type selection
+            - on click
+        */
+
+        
+        // adjust selection color if the selected tile (hovered over by mouse) has changed
+        if (indices != indexSelectedTile){
+            if (indexSelectedTile.x != -1){
+                // reset the selection color in the previously selected tile (if it was within array)
+                visualMaze[indexSelectedTile.x, indexSelectedTile.y, 1].GetComponent<Renderer>().material = materialTileEdge;
+            }
+            
+            // color the newly selected tile (only if within maze)
+            if (indices.x != -1){
+                visualMaze[indices.x, indices.y, 1].GetComponent<Renderer>().material = materialSelect;
+            }
+            // change the reference of selected tile to the currently selected one
+            indexSelectedTile = indices;
+        }
+
+        if (Input.GetMouseButtonDown(0)){ // 0 should be primary button -> left click
+            changeFieldType(indexSelectedTile.x, indexSelectedTile.y, obst);
+        }
+
+    
+
+        print("index: [" + indices.x + "," + indices.y + "]");   
+    }
+
+
+    void initializeMaze(){
         // initialize array with right dimensions and all positions set to free
         maze = new string[mazeDimMN.x, mazeDimMN.y];
         visualMaze = new GameObject[mazeDimMN.x, mazeDimMN.y, 2];
@@ -44,7 +93,6 @@ public class mazeControl : MonoBehaviour
 
                 // VISUAL: 
                 // spawn the tiles
-                //Vector2 tilePositionOnMap = new Vector2(j*tileSize, i*tileSize);
                 Vector2 tilePositionOnMap = indexToPos(i,j);
 
                 // the background -> edge of a tile
@@ -62,45 +110,27 @@ public class mazeControl : MonoBehaviour
                 newTile.GetComponent<Renderer>().material = materialFree;
                 newTile.transform.parent = newTileBack.transform;
                 visualMaze[i,j,0] = newTile;
+            }  
 
-            }
-        }
-        
+            // generate example types for type selection
+
+        } 
     }
 
-    // Update is called once per frame
-    void Update()
-    {
 
-        //print(gameCamera.ScreenToWorldPoint(Input.mousePosition));
-        Vector3 mousePosition = gameCamera.ScreenToWorldPoint(Input.mousePosition);
-        print(mousePosition);
-        Vector2Int indices = posToIndex(mousePosition);
+    // initialize field type string to material dictionary
+    void initializeMaterialDict(){
+        typeToMaterial.Add(free, materialFree);
+        typeToMaterial.Add(start, materialStart);
+        typeToMaterial.Add(dest, materialDest);
+        typeToMaterial.Add(obst, materialObst);
+    }
 
-        
-        // adjust selection color if the selected tile (hovered over by mouse) has changed
-        if (indices != indexSelectedTile){
-            if (indexSelectedTile.x != -1){
-                // reset the selection color in the previously selected tile (if it was within array)
-                visualMaze[indexSelectedTile.x, indexSelectedTile.y, 1].GetComponent<Renderer>().material = materialTileEdge;
-            }
-            
-            // color the newly selected tile (only if within maze)
-            if (indices.x != -1){
-                visualMaze[indices.x, indices.y, 1].GetComponent<Renderer>().material = materialSelect;
-            }
-            //visualMaze[indices.x, indices.y, 1].GetComponent<Renderer>().material = materialSelect;
-            // change the reference of selected tile to the currently selected one
-            indexSelectedTile = indices;
-        }
-
-    
-
-        print("index: [" + indices.x + "," + indices.y + "]");
-        //visualMaze[indices.x, indices.y, 1].GetComponent<Renderer>().material = materialSelect;
-
- 
-        
+    // for given indices, change the logical field type as well as the tile material
+    // to the given type
+    void changeFieldType(int x, int y, string type){
+        maze[x,y] = type;
+        visualMaze[x, y, 0].GetComponent<Renderer>().material = typeToMaterial[type];
     }
 
     // convert indices to position on map (x vertical, y horizontal)
@@ -115,7 +145,9 @@ public class mazeControl : MonoBehaviour
 
     }
 
-    // convert position on map to indices in maze array
+    /* convert position on map to indices in maze array
+     return value [-1,-1] represents any invalid/meaningless position 
+     -> neither in maze, nor type selector field */
     Vector2Int posToIndex(Vector2 position){
         Vector2Int indices = Vector2Int.zero;
         Vector2 offset = new Vector2(tileSize/2, tileSize/2);
@@ -128,7 +160,7 @@ public class mazeControl : MonoBehaviour
             return new Vector2Int(-1, -1);
         }
         return indices;
-
-        
     }
+
+
 }

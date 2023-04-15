@@ -176,7 +176,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 8.061197
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -200,7 +200,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 8.33, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -236,7 +236,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caf27643e6354508c916c6e3c7a21863, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mazeDimMN: {x: 5, y: 2}
+  mazeDimMN: {x: 2, y: 2}
   tileSize: 1
   tileInnerSize: 0.8
   tileObject: {fileID: 909504842615122591, guid: 4e61a54f9409ab5578b1ef8cfcc104b4, type: 3}
@@ -245,7 +245,7 @@ MonoBehaviour:
   materialFree: {fileID: 2100000, guid: 561df0a1c92f5a7ec850fe995df14501, type: 2}
   materialStart: {fileID: 2100000, guid: dde8756d21270069d9dc69f319494549, type: 2}
   materialDest: {fileID: 0}
-  materialObst: {fileID: 0}
+  materialObst: {fileID: 2100000, guid: 71f5f72ce7538de2d857b993ef72262b, type: 2}
   gameCamera: {fileID: 519420031}
 --- !u!4 &1715709113
 Transform:
