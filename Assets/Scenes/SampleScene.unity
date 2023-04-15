@@ -200,7 +200,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.33, y: 0, z: -10}
+  m_LocalPosition: {x: 6.37, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -244,7 +244,7 @@ MonoBehaviour:
   materialSelect: {fileID: 2100000, guid: 88e10f367221b14449ea511031822984, type: 2}
   materialFree: {fileID: 2100000, guid: 561df0a1c92f5a7ec850fe995df14501, type: 2}
   materialStart: {fileID: 2100000, guid: dde8756d21270069d9dc69f319494549, type: 2}
-  materialDest: {fileID: 0}
+  materialDest: {fileID: 2100000, guid: b56a0d6c5552f512abb0faad9a8d8652, type: 2}
   materialObst: {fileID: 2100000, guid: 71f5f72ce7538de2d857b993ef72262b, type: 2}
   gameCamera: {fileID: 519420031}
 --- !u!4 &1715709113
