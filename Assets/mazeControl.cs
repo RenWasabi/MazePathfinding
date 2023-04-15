@@ -30,8 +30,18 @@ public class mazeControl : MonoBehaviour
 
     public Camera gameCamera;
 
+    /* REGARDING GLOBAL INDICES:
+     there is (unnamed) global indices associated with each possible 
+    position on the map via indexToPos(). 
+    - Within the range of 0 to the dimensions specified for the maze in mazeDimMN, 
+        they correspond to the indices of the visual maze 
+    - with a fixed horizontal index of -selectorOffsetToLeftInTiles and the vertical indices
+        of 0 to the number of field types, they vertical indices correspond to the 
+        indices of arrayOfMaterial
+    */
     Vector2Int indexSelectedTile;
-
+    
+    public int selectorOffsetToLeftInTiles;
 
 
     void Start()
@@ -39,6 +49,8 @@ public class mazeControl : MonoBehaviour
         arrayOfMaterial = new string[4] {free, start, dest, obst};
         initializeMaterialDict();
         initializeMaze();
+        // generate example types for type selection
+        initializeTypeSelectors(selectorOffsetToLeftInTiles);
     }
 
     // Update is called once per frame
@@ -84,10 +96,6 @@ public class mazeControl : MonoBehaviour
                 // VISUAL
                 spawnFullTile(visualMaze, new Vector2Int(i,j), free);
             }
-
-            // generate example types for type selection
-            initializeTypeSelectors(2);
-
         }
     }
     
@@ -192,10 +200,15 @@ public class mazeControl : MonoBehaviour
         indices.x = Mathf.FloorToInt(position.y);
         indices.y = Mathf.FloorToInt(position.x);
 
-        if (indices.x < 0 || indices.x >= mazeDimMN.x || indices.y < 0 || indices.y >= mazeDimMN.y){
+        // first if: if not selector tile
+        if (indices.y != -selectorOffsetToLeftInTiles || (indices.y == -selectorOffsetToLeftInTiles && (indices.x < 0 || indices.x >= arrayOfMaterial.Length))){
+            // second if: and also not inside maze, then return -1 ,-1
+            if (indices.x < 0 || indices.x >= mazeDimMN.x || indices.y < 0 || indices.y >= mazeDimMN.y){
             print("Index conversion warning: indices ["+indices.x+","+indices.y+"] outside of maze array: ["+mazeDimMN.x+","+mazeDimMN.y+"].");
             return new Vector2Int(-1, -1);
+            }
         }
+        // else return the global index        
         return indices;
     }
 
@@ -211,18 +224,45 @@ public class mazeControl : MonoBehaviour
     void colorHoveredOverTile(Vector2Int indices){
         // adjust selection color if the selected tile (hovered over by mouse) has changed
         if (indices != indexSelectedTile){
-            if (indexSelectedTile.x != -1){
-                // reset the selection color in the previously selected tile (if it was within array)
-                visualMaze[indexSelectedTile.x, indexSelectedTile.y, 1].GetComponent<Renderer>().material = materialTileEdge;
-            }
-            // color the newly selected tile (only if within maze)
-            if (indices.x != -1){
-                visualMaze[indices.x, indices.y, 1].GetComponent<Renderer>().material = materialSelect;
+            print("hovered over tile changed.");
+            // reset the selection color in the previously selected tile (if it was within array)
+            GameObject previousHoverTileBack = getTileObject(indexSelectedTile, 1);
+            if (previousHoverTileBack != null){
+                previousHoverTileBack.GetComponent<Renderer>().material = materialTileEdge;
+                }
+
+            // color the newly selected tile (only if within maze/selector)
+            GameObject hoverTileBack = getTileObject(indices, 1);
+            if (hoverTileBack != null){
+                print("we are actually hovering over a tile");
+                hoverTileBack.GetComponent<Renderer>().material = materialSelect;                
+            } else {
+                print("not hovering over legit tile");
             }
             // change the reference of selected tile to the currently selected one
             indexSelectedTile = indices;
         }
     }
 
+    /* use the global indices to return a tile of either the visual maze array or
+    the visual selector array depending on which the indices correspond to
+    returns tile object, front or back, return null for any other index */
+    GameObject getTileObject(Vector2Int indices, int frontOrBack){
+        if (indices.y == -selectorOffsetToLeftInTiles){
+            if (indices.x >= 0 && indices.x < visualSelectorArray.Length){
+                // return selector tile
+                return visualSelectorArray[indices.x, frontOrBack];
+            } else {
+                return null;
+            }
+        } else if (indices.x >= 0 && indices.x < mazeDimMN.x && indices.y >= 0 && indices.y < mazeDimMN.y){
+            // return visual maze tile
+            return visualMaze[indices.x, indices.y, frontOrBack];
+        } else {
+            return null;
+        }
+        }
+    }
 
-}
+
+

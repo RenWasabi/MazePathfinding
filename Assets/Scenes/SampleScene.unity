@@ -247,6 +247,7 @@ MonoBehaviour:
   materialDest: {fileID: 2100000, guid: b56a0d6c5552f512abb0faad9a8d8652, type: 2}
   materialObst: {fileID: 2100000, guid: 71f5f72ce7538de2d857b993ef72262b, type: 2}
   gameCamera: {fileID: 519420031}
+  selectorOffsetToLeftInTiles: 2
 --- !u!4 &1715709113
 Transform:
   m_ObjectHideFlags: 0
