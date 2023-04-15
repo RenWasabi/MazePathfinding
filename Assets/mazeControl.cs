@@ -16,6 +16,8 @@ public class mazeControl : MonoBehaviour
     public float tileInnerSize;
     public GameObject tileObject;
 
+    public GameObject activeTypeTile;
+
     // types and materials
     string free = "free", start = "start", dest = "destination", obst = "obstacle";
     public Material materialTileEdge;
@@ -26,6 +28,7 @@ public class mazeControl : MonoBehaviour
     public Material materialObst;
     string[] arrayOfMaterial;
     Dictionary<string, Material> typeToMaterial = new Dictionary<string, Material>();
+    Dictionary<Material, string> materialToType = new Dictionary<Material, string>();
 
 
     public Camera gameCamera;
@@ -42,10 +45,13 @@ public class mazeControl : MonoBehaviour
     Vector2Int indexSelectedTile;
     
     public int selectorOffsetToLeftInTiles;
+    string activeType;
 
 
     void Start()
     {
+        activeType = free;
+        activeTypeTile.GetComponent<Renderer>().material = materialFree;
         arrayOfMaterial = new string[4] {free, start, dest, obst};
         initializeMaterialDict();
         initializeMaze();
@@ -75,13 +81,20 @@ public class mazeControl : MonoBehaviour
         
 
         if (Input.GetMouseButtonDown(0)){ // 0 should be primary button -> left click
-            changeFieldType(indexSelectedTile.x, indexSelectedTile.y, obst);
+            if (IsSelectorIndex(indices)){
+                getFieldType(indices);
+            } else if (IsInMaze(indices)){
+                changeFieldType(indexSelectedTile.x, indexSelectedTile.y, activeType);
+
+            }
         }
 
 
 
         print("index: [" + indices.x + "," + indices.y + "]");   
     }
+
+
 
 
     // initialize array with right dimensions and all positions set to free
@@ -172,6 +185,11 @@ public class mazeControl : MonoBehaviour
         typeToMaterial.Add(start, materialStart);
         typeToMaterial.Add(dest, materialDest);
         typeToMaterial.Add(obst, materialObst);
+
+        materialToType.Add(materialFree, free);
+        materialToType.Add(materialStart, start);
+        materialToType.Add(materialDest, dest);
+        materialToType.Add(materialObst, obst);
     }
 
 
@@ -201,15 +219,30 @@ public class mazeControl : MonoBehaviour
         indices.y = Mathf.FloorToInt(position.x);
 
         // first if: if not selector tile
-        if (indices.y != -selectorOffsetToLeftInTiles || (indices.y == -selectorOffsetToLeftInTiles && (indices.x < 0 || indices.x >= arrayOfMaterial.Length))){
+        if (!IsSelectorIndex(indices)){
             // second if: and also not inside maze, then return -1 ,-1
-            if (indices.x < 0 || indices.x >= mazeDimMN.x || indices.y < 0 || indices.y >= mazeDimMN.y){
+            if (!IsInMaze(indices)){
             print("Index conversion warning: indices ["+indices.x+","+indices.y+"] outside of maze array: ["+mazeDimMN.x+","+mazeDimMN.y+"].");
             return new Vector2Int(-1, -1);
             }
         }
         // else return the global index        
         return indices;
+    }
+
+    bool IsSelectorIndex(Vector2Int indices){
+        return (indices.y == -selectorOffsetToLeftInTiles && indices.x >= 0 && indices.x < arrayOfMaterial.Length);
+    }
+
+    bool IsInMaze(Vector2Int indices){
+        return (indices.x >= 0 && indices.x < mazeDimMN.x && indices.y >= 0 && indices.y < mazeDimMN.y);
+    }
+
+        /* set the currently active field type according to users choice
+    and color the demonstration tile accordingly */
+    void getFieldType(Vector2Int indices){
+        activeType = arrayOfMaterial[indices.x];
+        activeTypeTile.GetComponent<Renderer>().material = typeToMaterial[activeType];
     }
 
 
