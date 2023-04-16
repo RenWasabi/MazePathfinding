@@ -10,13 +10,14 @@ public class mazeControl : MonoBehaviour
     // the visual maze: m x n x 2, last dimension: 0->front of tile, 1-> back of tile
     GameObject[,,] visualMaze; 
     GameObject[,] visualSelectorArray; // for choosing field types
+    
 
     // tile Object
     public float tileSize; //  WARNING! NOT YET LINKED TO ACTUAL TILESIZE, BUT CALCULATIONS ONLY!
     public float tileInnerSize;
     public GameObject tileObject;
 
-    public GameObject activeTypeTile;
+    GameObject[,] activeTypeTile; // only one tile at 0,0 front and 0,1 back
 
     // types and materials
     string free = "free", start = "start", dest = "destination", obst = "obstacle";
@@ -50,11 +51,16 @@ public class mazeControl : MonoBehaviour
 
     void Start()
     {
-        activeType = free;
-        activeTypeTile.GetComponent<Renderer>().material = materialFree;
         arrayOfMaterial = new string[4] {free, start, dest, obst};
+        
+        
         initializeMaterialDict();
         initializeMaze();
+        initializeActiveTile();
+
+
+        
+
         // generate example types for type selection
         initializeTypeSelectors(selectorOffsetToLeftInTiles);
     }
@@ -111,6 +117,15 @@ public class mazeControl : MonoBehaviour
             }
         }
     }
+
+
+// the single tile still needs to be an array for front [0,0] and back [0,1]
+void initializeActiveTile(){
+    int indexVertical = arrayOfMaterial.Length+2;
+    activeTypeTile = new GameObject[1,2];
+    spawnFullTile(activeTypeTile, -selectorOffsetToLeftInTiles, indexVertical, free, 0);
+    activeType = free;
+}
     
 
     /* handling the visual tile representation
@@ -165,6 +180,29 @@ public class mazeControl : MonoBehaviour
         visualArray[indexVertical,0] = newTile;
         
     }
+    // for a single tile
+    // different internal index: the index in the visual array does not correspond to the global vertical index
+    void spawnFullTile(GameObject[,] visualArray, int indexHorizontalFixed, int indexVertical, string type, int differentInternalIndex){
+        Vector2 tilePositionOnMap = indexToPos(indexVertical, indexHorizontalFixed);
+
+        // the background -> edge of a tile
+        GameObject newTileBack = (GameObject) Instantiate(tileObject, tilePositionOnMap, Quaternion.identity);
+        newTileBack.GetComponent<Renderer>().material = materialTileEdge;
+        newTileBack.transform.parent = transform;
+        visualArray[differentInternalIndex,1] = newTileBack;
+
+        // the tile filling itself
+        GameObject newTile = (GameObject) Instantiate(tileObject, tilePositionOnMap, Quaternion.identity);
+        // scale it down to make the background visible as edge
+        newTile.transform.localScale = new Vector3(tileInnerSize, tileInnerSize);
+        // move it to the front so that it is rendered in front of the background "edge"
+        newTile.transform.position = new Vector3(newTile.transform.position.x, newTile.transform.position.y, 0);
+        newTile.GetComponent<Renderer>().material = typeToMaterial[type];
+        newTile.transform.parent = newTileBack.transform;
+        visualArray[differentInternalIndex,0] = newTile;
+        
+    }
+
 
     void initializeTypeSelectors(int offsetToLeftInTiles){
 
@@ -242,7 +280,7 @@ public class mazeControl : MonoBehaviour
     and color the demonstration tile accordingly */
     void getFieldType(Vector2Int indices){
         activeType = arrayOfMaterial[indices.x];
-        activeTypeTile.GetComponent<Renderer>().material = typeToMaterial[activeType];
+        activeTypeTile[0,0].GetComponent<Renderer>().material = typeToMaterial[activeType];
     }
 
 

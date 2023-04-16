@@ -224,7 +224,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6615234386547881586, guid: 4e61a54f9409ab5578b1ef8cfcc104b4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.94
+      value: -1.88
       objectReference: {fileID: 0}
     - target: {fileID: 6615234386547881586, guid: 4e61a54f9409ab5578b1ef8cfcc104b4, type: 3}
       propertyPath: m_LocalPosition.y
@@ -293,7 +293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caf27643e6354508c916c6e3c7a21863, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mazeDimMN: {x: 2, y: 2}
+  mazeDimMN: {x: 6, y: 9}
   tileSize: 1
   tileInnerSize: 0.8
   tileObject: {fileID: 909504842615122591, guid: 4e61a54f9409ab5578b1ef8cfcc104b4, type: 3}
